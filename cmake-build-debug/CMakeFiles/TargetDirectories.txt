@@ -1,3 +1,3 @@
-/Users/brookeweborg/simple_stream_server/cmake-build-debug/CMakeFiles/rebuild_cache.dir
-/Users/brookeweborg/simple_stream_server/cmake-build-debug/CMakeFiles/edit_cache.dir
-/Users/brookeweborg/simple_stream_server/cmake-build-debug/CMakeFiles/socket_example.dir
+/home/kristopher/Documents/SharingSocketsTest/simple_stream_server/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/kristopher/Documents/SharingSocketsTest/simple_stream_server/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/home/kristopher/Documents/SharingSocketsTest/simple_stream_server/cmake-build-debug/CMakeFiles/socket_example.dir
