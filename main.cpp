@@ -19,7 +19,7 @@
 
 #define BACKLOG 10     // how many pending connections queue will hold
 
-#define MAXDATASIZE 100 // max number of bytes we can get at once
+#define MAXDATASIZE 201 // max number of bytes we can get at once
 
 void sigchld_handler(int s)
 {
@@ -226,24 +226,32 @@ int main(void)
         //return -1 for errors or 0 to the new process and the process ID
         //of the new process to the old process
 
+        /*
         if (recv(sockfd, buf, MAXDATASIZE-1, 0) == -1)
         {
             perror("recv failed to read bytes into BUF from socket FD");
             exit(0);
         }
+         */
 
-       /* if (!fork()) { // this is the child process
-            if (recv(sockfd, buf, MAXDATASIZE-1, 0) == -1)
+        int numBytes = 0;
+       if (!fork()) { // this is the child process
+           close(sockfd);
+            if ((numBytes = recv(new_fd, buf, MAXDATASIZE-1, 0)) == -1)
                 perror("recv failed to read bytes into BUF from socket FD");
-            close(sockfd);
+            close(new_fd);
+
+           buf[numBytes] = '\0'; //Clear last character of buf
+           printf("client: received '%s'\n",buf);
             exit(0);
-            close(sockfd); // child doesn't need the listener
+
+           /*close(sockfd); // child doesn't need the listener
             if (send(new_fd, "Hello, world!", 13, 0) == -1)
                 perror("send");
             close(new_fd);
-            exit(0);
-        }*/
-       // close(new_fd);  // parent doesn't need this
+            exit(0); */
+        }
+       close(new_fd);  // parent doesn't need this
     }
     return 0;
 }
