@@ -19,6 +19,8 @@
 
 #define BACKLOG 10     // how many pending connections queue will hold
 
+#define MAXDATASIZE 100 // max number of bytes we can get at once
+
 void sigchld_handler(int s)
 {
     // waitpid() might overwrite errno, so we save and restore it:
@@ -64,7 +66,7 @@ void *get_in_addr(struct sockaddr *sa)
 int main(void)
 {
     int sockfd, new_fd;  // listen on sock_fd, new connection on new_fd
-
+    char buf[MAXDATASIZE];
     /*
      * Used to prep the socket address structures for invention.
     struct addrinfo {
@@ -224,15 +226,28 @@ int main(void)
             s, sizeof s);
         printf("server: got connection from %s\n", s);
 
-        if (!fork()) { // this is the child process
+        //fork - clone the calling proccess, creating an exact copy
+        //return -1 for errors or 0 to the new process and the process ID
+        //of the new process to the old process
+
+        if (recv(sockfd, buf, MAXDATASIZE-1, 0) == -1)
+        {
+            perror("recv failed to read bytes into BUF from socket FD");
+            exit(0);
+        }
+
+       /* if (!fork()) { // this is the child process
+            if (recv(sockfd, buf, MAXDATASIZE-1, 0) == -1)
+                perror("recv failed to read bytes into BUF from socket FD");
+            close(sockfd);
+            exit(0);
             close(sockfd); // child doesn't need the listener
             if (send(new_fd, "Hello, world!", 13, 0) == -1)
                 perror("send");
             close(new_fd);
             exit(0);
-        }
-        close(new_fd);  // parent doesn't need this
+        }*/
+       // close(new_fd);  // parent doesn't need this
     }
-
     return 0;
 }
