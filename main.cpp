@@ -207,20 +207,16 @@ int main(void)
         When a connection arrives, open a new socket to communicate with it,
         set *ADDR (which is *ADDR_LEN bytes long) to the address of the connecting
         peer and *ADDR_LEN to the address's actual length, and return the
-        new socket's descriptor, or -1 for errors.
-
-        This function is a cancellation point and therefore not marked with
-        __THROW.
-         */
+        new socket's descriptor, or -1 for errors. */
         new_fd = accept(sockfd, (struct sockaddr *)&their_addr, &sin_size);
         if (new_fd == -1) {
             perror("accept");
             continue;
         }
+
         /* Convert a Internet address in binary network format for interface
            type AF in buffer starting at CP to presentation form and place
-           result in buffer of length LEN astarting at BUF.
-       */
+           result in buffer of length LEN astarting at BUF. */
         inet_ntop(their_addr.ss_family,
             get_in_addr((struct sockaddr *)&their_addr),
             s, sizeof s);
