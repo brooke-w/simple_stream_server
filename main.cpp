@@ -19,7 +19,7 @@
 
 #define BACKLOG 10     // how many pending connections queue will hold
 
-#define MAXDATASIZE 201 // max number of bytes we can get at once
+#define MAXDATASIZE 50 // max number of bytes we can get at once
 
 void sigchld_handler(int s)
 {
@@ -66,7 +66,7 @@ void *get_in_addr(struct sockaddr *sa)
 int main(void)
 {
     int sockfd, new_fd;  // listen on sock_fd, new connection on new_fd
-    char buf[MAXDATASIZE];
+    char buf[MAXDATASIZE + 1];//Add 1 since the last char must be a null char.
     /*
      * Used to prep the socket address structures for invention.
     struct addrinfo {
@@ -201,6 +201,7 @@ int main(void)
 
     printf("server: waiting for connections...\n");
 
+    int exitCount = 0;
     while(1) {  // main accept() loop
         sin_size = sizeof their_addr;
         /* Await a connection on socket FD.
@@ -234,24 +235,64 @@ int main(void)
         }
          */
 
+        //fork - clone the calling proccess, creating an exact copy
+        //return -1 for errors or 0 to the new process and the process ID
+        //of the new process to the old process
+
+        /*
+        if (recv(sockfd, buf, MAXDATASIZE-1, 0) == -1)
+        {
+            perror("recv failed to read bytes into BUF from socket FD");
+            exit(0);
+        }
+         */
+
         int numBytes = 0;
-       if (!fork()) { // this is the child process
-           close(sockfd);
+        if (!fork()) { // this is the child process
+            close(sockfd);
             if ((numBytes = recv(new_fd, buf, MAXDATASIZE-1, 0)) == -1)
                 perror("recv failed to read bytes into BUF from socket FD");
             close(new_fd);
 
-           buf[numBytes] = '\0'; //Clear last character of buf
-           printf("client: received '%s'\n",buf);
+            buf[numBytes] = '\0'; //Clear last character of buf
+            printf("client: received '%s'\n",buf);
             exit(0);
 
-           /*close(sockfd); // child doesn't need the listener
-            if (send(new_fd, "Hello, world!", 13, 0) == -1)
-                perror("send");
+            /*close(sockfd); // child doesn't need the listener
+             if (send(new_fd, "Hello, world!", 13, 0) == -1)
+                 perror("send");
+             close(new_fd);
+             exit(0); */
+        } else
+        {
             close(new_fd);
-            exit(0); */
         }
-       close(new_fd);  // parent doesn't need this
+
+
+//       int numBytes = 0;
+//       if (!fork()) { // this is the child process
+//           //close(sockfd);
+//            if ((numBytes = recv(new_fd, buf, MAXDATASIZE, 0)) == -1)
+//                perror("recv failed to read bytes into BUF from socket FD");
+//           close(new_fd);
+//           if (exitCount == 3)
+//           {
+//               exit(0);
+//           }
+//           exitCount++;
+//
+//           buf[numBytes] = '\0'; //Clear last character of buf
+//           printf("client: received '%s'\n",buf);
+//
+//
+//           /*close(sockfd); // child doesn't need the listener
+//            if (send(new_fd, "Hello, world!", 13, 0) == -1)
+//                perror("send");
+//            close(new_fd);
+//            exit(0); */
+//        }//End of fork if.
+//        else
+//            close(new_fd);  // parent doesn't need this
     }
     return 0;
 }
