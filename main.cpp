@@ -223,76 +223,26 @@ int main(void)
             s, sizeof s);
         printf("server: got connection from %s\n", s);
 
-        //fork - clone the calling proccess, creating an exact copy
-        //return -1 for errors or 0 to the new process and the process ID
-        //of the new process to the old process
-
-        /*
-        if (recv(sockfd, buf, MAXDATASIZE-1, 0) == -1)
+        int read_size;
+        //Receive a message from client
+        while( (read_size = recv(new_fd , buf , MAXDATASIZE , 0)) > 0 )
         {
-            perror("recv failed to read bytes into BUF from socket FD");
-            exit(0);
-        }
-         */
-
-        //fork - clone the calling proccess, creating an exact copy
-        //return -1 for errors or 0 to the new process and the process ID
-        //of the new process to the old process
-
-        /*
-        if (recv(sockfd, buf, MAXDATASIZE-1, 0) == -1)
-        {
-            perror("recv failed to read bytes into BUF from socket FD");
-            exit(0);
-        }
-         */
-
-        int numBytes = 0;
-        if (!fork()) { // this is the child process
-            close(sockfd);
-            if ((numBytes = recv(new_fd, buf, MAXDATASIZE-1, 0)) == -1)
-                perror("recv failed to read bytes into BUF from socket FD");
-            close(new_fd);
-
-            buf[numBytes] = '\0'; //Clear last character of buf
-            printf("client: received '%s'\n",buf);
-            exit(0);
-
-            /*close(sockfd); // child doesn't need the listener
-             if (send(new_fd, "Hello, world!", 13, 0) == -1)
-                 perror("send");
-             close(new_fd);
-             exit(0); */
-        } else
-        {
-            close(new_fd);
+            buf[read_size] = '\0'; //Clear last character of buf
+            printf(buf);
+            //Send the message back to client
+            //write(sockfd , buf , strlen(buf));
         }
 
+        if(read_size == 0)
+        {
+            puts("Client disconnected");
+            fflush(stdout);
+        }
+        else if(read_size == -1)
+        {
+            perror("recv failed");
+        }
 
-//       int numBytes = 0;
-//       if (!fork()) { // this is the child process
-//           //close(sockfd);
-//            if ((numBytes = recv(new_fd, buf, MAXDATASIZE, 0)) == -1)
-//                perror("recv failed to read bytes into BUF from socket FD");
-//           close(new_fd);
-//           if (exitCount == 3)
-//           {
-//               exit(0);
-//           }
-//           exitCount++;
-//
-//           buf[numBytes] = '\0'; //Clear last character of buf
-//           printf("client: received '%s'\n",buf);
-//
-//
-//           /*close(sockfd); // child doesn't need the listener
-//            if (send(new_fd, "Hello, world!", 13, 0) == -1)
-//                perror("send");
-//            close(new_fd);
-//            exit(0); */
-//        }//End of fork if.
-//        else
-//            close(new_fd);  // parent doesn't need this
+        exit(0);
     }
-    return 0;
 }
